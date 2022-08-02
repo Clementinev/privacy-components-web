@@ -37,7 +37,8 @@ export class DemandBuilder extends LitElement {
   constructor() {
     super();
 
-    // Demand update listeners
+    // Demand update listeners - Do we even need these listeners or can the demands
+    // just flow down from the top level?
     this.addEventListener('demand-set', e => {
       const { demandId, demand } = (e as CustomEvent).detail;
       this.demands.set(demandId, demand);
