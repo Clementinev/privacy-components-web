@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { html, css, LitElement, PropertyValueMap } from 'lit';
+import { html, css, LitElement, PropertyValueMap, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { choose } from 'lit/directives/choose.js';
 import { localized, msg, str } from '@lit/localize';
@@ -10,7 +10,7 @@ import { Demand } from './models/demand.js';
 import { ACTION_TITLES, ACTION_DESCRIPTIONS } from './utils/dictionary.js';
 import { DemandState } from './utils/states.js';
 import './DemandBuilderActionMenu.js';
-import './DemandBuilderDropdownElement.js';
+import './SlottedDropdown.js';
 import './DemandBuilderTextElement.js';
 import './demand-forms/TransparencyForm.js';
 import './DemandBuilderSidebarItem.js';
@@ -56,7 +56,7 @@ export class DemandBuilder extends LitElement {
     // UI element listeners
     this.addEventListener('demand-action-menu-click', () => {
       this._selectedAction = ACTION.TRANSPARENCY;
-      this.demandState = DemandState.EDIT;
+      this.demandState = DemandState.EDIT_OPEN;
     });
     this.addEventListener('sidebar-click', e => {
       this._sidebarSelectedIndex = this.includedActions.indexOf(
@@ -93,7 +93,7 @@ export class DemandBuilder extends LitElement {
    * included in this DemandBuilder as an option.
    * @returns HTML template for sidebar display
    */
-  getSidebarTemplate() {
+  getSidebarTemplate(): TemplateResult {
     return html`
       <div id="sidebar">
         <p id="sidebar-title">${msg('Type of demand:')}</p>
@@ -112,11 +112,21 @@ export class DemandBuilder extends LitElement {
     `;
   }
 
+  getActionMenuTemplate(): TemplateResult {
+    return html`<demand-builder-action-menu
+      .includedActions=${this.includedActions}
+    ></demand-builder-action-menu>`;
+  }
+
+  getAuthTemplate(): TemplateResult {
+    return html`Authentication will happen here!`;
+  }
+
   /**
    * Get an HTML template for the form corresponding to the selected action type.
    * @returns HTML template for action form
    */
-  getSelectedFormTemplate() {
+  getSelectedFormTemplate(): TemplateResult {
     return html`
       ${choose(this._selectedAction, [
         [
@@ -166,19 +176,15 @@ export class DemandBuilder extends LitElement {
   }
 
   render() {
-    if (this.demandState === DemandState.SELECT_ACTION) {
-      return html`<demand-builder-action-menu
-        .includedActions=${this.includedActions}
-      ></demand-builder-action-menu>`;
-    } else {
-      return html`
-        <!-- Include sidebar in edit mode -->
-        ${when(this.demandState === DemandState.EDIT, () =>
-          this.getSidebarTemplate()
-        )}
-        <!-- Display selected form -->
-        ${this.getSelectedFormTemplate()}
-      `;
-    }
+    return html`
+      ${choose(
+        this.demandState,
+        [
+          [DemandState.SELECT_ACTION, () => this.getActionMenuTemplate()],
+          [DemandState.AUTH, () => this.getAuthTemplate()],
+        ],
+        () => this.getSelectedFormTemplate()
+      )}
+    `;
   }
 }

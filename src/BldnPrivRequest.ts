@@ -317,7 +317,7 @@ export class BldnPrivRequest extends LitElement {
         <div id="nav-bar">
           <button id="back-btn">
             <span>&lt; </span>
-            <span id="back-btn-txt">Back</span>
+            <span id="back-btn-txt">${msg('Back')}</span>
           </button>
           <div class="req-hdr">${msg('My Privacy Request')}</div>
         </div>
@@ -357,7 +357,7 @@ export class BldnPrivRequest extends LitElement {
                         ?disabled=${!this._buttonsClickable}
                         @click=${this.handleReviewClick}
                       >
-                        ${msg('Continue to submit Privacy Request')}
+                        ${msg('Review Privacy Request')}
                       </button>
                     `,
                   ],

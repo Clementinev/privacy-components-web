@@ -1,12 +1,12 @@
 import { html, LitElement, TemplateResult } from 'lit';
-import { property } from 'lit/decorators';
+import { property } from 'lit/decorators.js';
 import { choose } from 'lit/directives/choose.js';
 import { Demand } from '../models/demand.js';
 import { DemandState } from '../utils/states.js';
 
 export abstract class ActionForm extends LitElement {
   @property({ type: Number, attribute: 'demand-state' })
-  demandState: DemandState = DemandState.EDIT;
+  demandState: DemandState = DemandState.EDIT_OPEN;
 
   @property({ attribute: false }) demands = new Map<string, Demand>();
 
@@ -25,7 +25,7 @@ export abstract class ActionForm extends LitElement {
     );
   }
 
-  setDemandMultiple(demands: Map<string, Demand>) {
+  setMultipleDemands(demands: Map<string, Demand>) {
     this.dispatchEvent(
       new CustomEvent('demand-set-multiple', {
         bubbles: true,
@@ -53,7 +53,7 @@ export abstract class ActionForm extends LitElement {
    * Get the edit template for this action
    * @returns HTML template
    */
-  abstract getEditTemplate(): TemplateResult;
+  abstract getEditTemplate(collapsed: boolean): TemplateResult;
 
   /**
    * Get the review template for this action
@@ -64,7 +64,8 @@ export abstract class ActionForm extends LitElement {
   render(): TemplateResult<1 | 2> {
     return html`
       ${choose(this.demandState, [
-        [DemandState.EDIT, () => this.getEditTemplate()],
+        [DemandState.EDIT_OPEN, () => this.getEditTemplate(false)],
+        [DemandState.EDIT_COLLAPSED, () => this.getEditTemplate(true)],
         [DemandState.REVIEW, () => this.getReviewTemplate()],
       ])}
     `;
